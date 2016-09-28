@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+  <title>Shadow DOM Demos</title>
+</head>
+<body>
+
+  <h1>Shadow DOM Demos</h1>
+
+  <p>A showcase of how Shadow DOM <em>should</em> behave.</p>
+
+
+
+  <h2>Shadow Root Host as Flex Container</h2>
+
+  <div id="flexHost">
+    <span>Should</span>
+    <span>span</span>
+    <span>across</span>
+    <span>the</span>
+    <span>screen.</span>
+  </div>
+  
+  <script>
+    flexHost.attachShadow({mode:'open'}).innerHTML =
+      '<style>' +
+        ':host { display: flex }' +
+        '::slotted(span) { flex: 1 }' +
+      '</style>' +
+      '<slot></slot>';
+  </script>
+
+
+
+  <h2>::slotted(.toggle)</h2>
+
+  <button onclick="slottedToggle.querySelector('span').classList.toggle('toggle')">Toggle</button>
+  <div id="slottedToggle">
+    <span>Should toggle green background</span>
+  </div>
+  
+  <script>
+    slottedToggle.attachShadow({mode:'open'}).innerHTML =
+      '<style>' +
+        '::slotted(.toggle) { background: green }' +
+      '</style>' +
+      '<slot></slot>';
+  </script>
+
+
+
+  <h2>.toggle ::slotted(*)</h2>
+
+  <button onclick="toggleSlotted.shadowRoot.querySelector('div').classList.toggle('toggle')">Toggle</button>
+  <div id="toggleSlotted">
+    <span>Should toggle green background</span>
+  </div>
+  
+  <script>
+    toggleSlotted.attachShadow({mode:'open'}).innerHTML =
+      '<style>' +
+        '.toggle ::slotted(*) { background: green }' +
+      '</style>' +
+      '<div><slot></slot></div>';
+  </script>
+
+
+
+  <h2>Transition Light DOM Elements</h2>
+
+  <style>
+    #transition span {
+      transition: background 2s;
+    }
+    #transition.toggle span {
+      background: green;
+    }
+  </style>
+
+  <button onclick="transition.classList.toggle('toggle')">Toggle</button>
+
+  <div id="transition">
+    <div>
+      <span>Should transition (No shadow root)</span>
+    </div>
+    <div id="transitionShadow">
+      <span>Should transition (in light DOM)</span>
+    </div>
+  </div>
+  
+  <script>
+    transitionShadow.attachShadow({mode:'open'}).innerHTML =
+      '<slot></slot>';
+  </script>
+
+
+
+  <h2>:host(.toggle)</h2>
+
+  <button onclick="hostToggle.classList.toggle('toggle')">Toggle</button>
+
+  <div id="hostToggle">
+    <span>Should toggle green background</span>
+  </div>
+  
+  <script>
+    hostToggle.attachShadow({mode:'open'}).innerHTML =
+      '<style>' +
+        ':host(.toggle) { background: green }' +
+      '</style>' +
+      '<slot></slot>';
+  </script>
+
+
+
+  <h2>:host > *</h2>
+
+  <div id="hostDescendant">
+    <span>Should have green background</span>
+  </div>
+  
+  <script>
+    hostDescendant.attachShadow({mode:'open'}).innerHTML =
+      '<style>' +
+        ':host > * { background: green }' +
+      '</style>' +
+      '<div><slot></slot></div>';
+  </script>
+
+
+
+  <h2>:host::after</h2>
+
+  <div id="hostAfter">
+    <span>( ( ( Should end with three closing brackets</span>
+  </div>
+  
+  <script>
+    hostAfter.attachShadow({mode:'open'}).innerHTML =
+      '<style>' +
+        ':host::after { content: ") ) )" }' +
+      '</style>' +
+      '<slot></slot>';
+  </script>
+
+
+
+  <h2>getRootNode()</h2>
+
+  <div id="getRootNode"></div>
+  
+  <script>
+    getRootNode.attachShadow({mode:'open'}).innerHTML =
+      '<div></div>';
+    var div = getRootNode.shadowRoot.firstElementChild;
+    div.innerText = 'typeof div.getRootNode === ' + typeof div.getRootNode;
+  </script>
+
+</body>
+</html>
