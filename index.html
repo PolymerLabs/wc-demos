@@ -240,24 +240,88 @@
     </script>
   </section>
 
-<section>
-  <header>
-    <h2>getRootNode()</h2>
-    <a href="https://bugs.webkit.org/show_bug.cgi?id=162457">https://bugs.webkit.org/show_bug.cgi?id=162457</a>
-    <div id="getRootNodeStatus" class="status"></div>
-  </header>
 
-    <div id="getRootNode"></div>
+  <section>
+    <header>
+      <h2>getRootNode()</h2>
+      <a href="https://bugs.webkit.org/show_bug.cgi?id=162457">https://bugs.webkit.org/show_bug.cgi?id=162457</a>
+      <div id="getRootNodeStatus" class="status"></div>
+    </header>
+
+      <div id="getRootNode"></div>
+
+      <script>{
+        getRootNode.attachShadow({mode:'open'}).innerHTML =
+          '<div></div>';
+        var div = getRootNode.shadowRoot.firstElementChild;
+        const pass = typeof div.getRootNode === 'function';
+        getRootNodeStatus.classList.add(pass ? 'pass' : 'fail');
+      }</script>
+
+  </section>
+
+
+  <section>
+    <header>
+      <h2>@keyframes definitions in shadow roots</h2>
+      <p><a href="https://bugs.webkit.org/show_bug.cgi?id=164608">https://bugs.webkit.org/show_bug.cgi?id=164608</a></p>
+      <div id="keyframesStatus" class="status"></div>
+    </header>
+
+    <div id="keyframes"></div>
 
     <script>{
-      getRootNode.attachShadow({mode:'open'}).innerHTML =
-        '<div></div>';
-      var div = getRootNode.shadowRoot.firstElementChild;
-      const pass = typeof div.getRootNode === 'function';
-      getRootNodeStatus.classList.add(pass ? 'pass' : 'fail');
+      keyframes.attachShadow({mode:'open'}).innerHTML =
+        '<style>' +
+          '@keyframes fade {' +
+            '0% { opacity: 1 }' +
+            'to { opacity: 0 }' +
+          '}' +
+          ':host(.animate) { animation: fade 2s; }' +
+        '</style>' +
+        'Should fade away';
+      const start = performance.now();
+      let animated = false;
+      keyframes.addEventListener('animationend', () => {
+        const end = performance.now();
+        const duration = end - start;
+        const pass = duration > 1000 && duration < 3000;
+        keyframesStatus.classList.add(pass ? 'pass' : 'fail');
+        animated = true;
+      });
+      setTimeout(() => {
+        if (!animated) {
+          keyframesStatus.classList.add('fail');
+        }
+      }, 3000);
+      setTimeout(() => {
+        keyframes.classList.toggle('animate');
+      });
     }</script>
+  </section>
 
-</section>
+
+  <section>
+    <header>
+      <h2>event.composedPath() should include window</h2>
+      <p><a href="https://bugs.webkit.org/show_bug.cgi?id=164609">https://bugs.webkit.org/show_bug.cgi?id=164609</a></p>
+      <div id="composedPathStatus" class="status"></div>
+    </header>
+
+    <div id="composedPath"></div>
+
+    <script>{
+      composedPath.attachShadow({mode:'open'});
+      
+      const button = document.createElement('button');
+      composedPath.shadowRoot.appendChild(button);
+      button.addEventListener('click', function(e) {
+        const path = e.composedPath();
+        composedPathStatus.classList.add(path[path.length-1] === window ? 'pass' : 'fail');
+      });
+      button.click();
+    }</script>
+  </section>
 
 </body>
 </html>
