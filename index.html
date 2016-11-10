@@ -4,166 +4,260 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width">
   <title>Shadow DOM Demos</title>
-</head>
-<body>
-
-  <h1>Shadow DOM Demos</h1>
-
-  <p>A showcase of how Shadow DOM <em>should</em> behave.</p>
-
-
-
-  <h2>Shadow Root Host as Flex Container</h2>
-  <a href="https://bugs.webkit.org/show_bug.cgi?id=160740">WebKit Bug</a>
-
-  <div id="flexHost">
-    <span>Should</span>
-    <span>span</span>
-    <span>across</span>
-    <span>the</span>
-    <span>screen.</span>
-  </div>
-  
-  <script>
-    flexHost.attachShadow({mode:'open'}).innerHTML =
-      '<style>' +
-        ':host { display: flex }' +
-        '::slotted(span) { flex: 1 }' +
-      '</style>' +
-      '<slot></slot>';
-  </script>
-
-
-
-  <h2>::slotted(.toggle)</h2>
-  <a href="https://bugs.webkit.org/show_bug.cgi?id=160865">WebKit Bug</a>
-
-  <button onclick="slottedToggle.querySelector('span').classList.toggle('toggle')">Toggle</button>
-  <div id="slottedToggle">
-    <span>Should toggle green background</span>
-  </div>
-  
-  <script>
-    slottedToggle.attachShadow({mode:'open'}).innerHTML =
-      '<style>' +
-        '::slotted(.toggle) { background: green }' +
-      '</style>' +
-      '<slot></slot>';
-  </script>
-
-
-
-  <h2>.toggle ::slotted(*)</h2>
-  <a href="https://bugs.webkit.org/show_bug.cgi?id=160864">WebKit Bug</a>
-
-  <button onclick="toggleSlotted.shadowRoot.querySelector('div').classList.toggle('toggle')">Toggle</button>
-  <div id="toggleSlotted">
-    <span>Should toggle green background</span>
-  </div>
-  
-  <script>
-    toggleSlotted.attachShadow({mode:'open'}).innerHTML =
-      '<style>' +
-        '.toggle ::slotted(*) { background: green }' +
-      '</style>' +
-      '<div><slot></slot></div>';
-  </script>
-
-
-
-  <h2>Transition Light DOM Elements</h2>
-  <a href="https://bugs.webkit.org/show_bug.cgi?id=160865">WebKit Bug</a>
-
   <style>
-    #transition span {
-      transition: background 2s;
+    section {
+      margin: 16px;
+      padding: 8px;
+      border: solid 1px #888;
     }
-    #transition.toggle span {
+    h2 {
+      margin: 4px 0;
+    }
+    div.status {
+      height: 16px;
+      background: #888;
+      margin: 16px 0;
+    }
+    div.status.pass {
       background: green;
     }
+    div.status.fail {
+      background: red;
+    }
   </style>
+</head>
+<body>
+  <h1>WebKit Shadow DOM Issues</h1>
+  <p>Issues we've found in Safari Technical Preview 17</p>
 
-  <button onclick="transition.classList.toggle('toggle')">Toggle</button>
+  <section>
+    <header>
+      <h2>Shadow Root Host as Flex Container</h2>
+      <p><a href="https://bugs.webkit.org/show_bug.cgi?id=160740">https://bugs.webkit.org/show_bug.cgi?id=160740</a></p>
+      <div id="flexStatus" class="status"></div>
+    </header>
 
-  <div id="transition">
-    <div>
-      <span>Should transition (No shadow root)</span>
+    <div id="flexHost">
+      <span>Should</span>
+      <span>span</span>
+      <span>across</span>
+      <span>the</span>
+      <span id="flexItem">screen.</span>
     </div>
-    <div id="transitionShadow">
-      <span>Should transition (in light DOM)</span>
+
+    <script>
+      flexHost.attachShadow({mode:'open'}).innerHTML =
+        '<style>' +
+          ':host { display: flex }' +
+          '::slotted(span) { flex: 1 }' +
+        '</style>' +
+        '<slot></slot>';
+      const hostRect = flexHost.getBoundingClientRect();
+      const itemRect = flexItem.getBoundingClientRect();
+      const pass = Math.round(hostRect.right) == Math.round(itemRect.right);
+      flexStatus.classList.add(pass ? 'pass' : 'fail');
+    </script>
+  </section>
+
+
+  <section>
+    <header>
+      <h2>::slotted(.toggle)</h2>
+      <p><a href="https://bugs.webkit.org/show_bug.cgi?id=160865">https://bugs.webkit.org/show_bug.cgi?id=160865</a></p>
+      <p>Make sure the Web Inspector is closed.</p>
+      <div id="slottedToggleStatus" class="status"></div>
+    </header>
+
+    <div id="slottedToggle">
+      <span>Should have a background color</span>
     </div>
-  </div>
-  
-  <script>
-    transitionShadow.attachShadow({mode:'open'}).innerHTML =
-      '<slot></slot>';
-  </script>
+
+    <script>
+      slottedToggle.attachShadow({mode:'open'}).innerHTML =
+        '<style>' +
+          '::slotted(.toggle) { background-color: rgba(100, 150, 200, 0.5) }' +
+        '</style>' +
+        '<slot></slot>';
+      setTimeout(() => {
+        const span = slottedToggle.querySelector('span');
+        span.classList.toggle('toggle');
+        const style = window.getComputedStyle(span);
+        const backgroundColor = style.backgroundColor;
+        const pass = backgroundColor !== `rgba(0, 0, 0, 0)`;
+        slottedToggleStatus.classList.add(pass ? 'pass' : 'fail');
+      });
+    </script>
+  </section>
+
+  <section>
+    <header>
+      <h2>.toggle ::slotted(*)</h2>
+      <p><a href="https://bugs.webkit.org/show_bug.cgi?id=160864">https://bugs.webkit.org/show_bug.cgi?id=160864</a></p>
+      <div id="toggleSlottedStatus" class="status"></div>
+    </header>
+
+    <div id="toggleSlotted">
+      <span>Should have a background color</span>
+    </div>
+
+    <script>
+      toggleSlotted.attachShadow({mode:'open'}).innerHTML =
+        '<style>' +
+          '.toggle ::slotted(*) { background-color: rgba(100, 150, 200, 0.5) }' +
+        '</style>' +
+        '<div><slot></slot></div>';
+      setTimeout(() => {
+        const div = toggleSlotted.shadowRoot.querySelector('div');
+        div.classList.toggle('toggle');
+        const span = toggleSlotted.querySelector(('span'));
+        const style = window.getComputedStyle(span);
+        const backgroundColor = style.backgroundColor;
+        const pass = backgroundColor !== `rgba(0, 0, 0, 0)`;
+        toggleSlottedStatus.classList.add(pass ? 'pass' : 'fail');
+      });
+    </script>
+  </section>
 
 
+  <section>
+    <header>
+      <h2>Transition Light DOM Elements</h2>
+      <p><a href="https://bugs.webkit.org/show_bug.cgi?id=160865">https://bugs.webkit.org/show_bug.cgi?id=160865</a></p>
+      <div id="transitionLightStatus" class="status"></div>
+    </header>
 
-  <h2>:host(.toggle)</h2>
-  <a href="https://bugs.webkit.org/show_bug.cgi?id=158900">WebKit Bug</a>
+    <style>
+      #transition span {
+        transition: background 2s;
+      }
+      #transition.toggle span {
+        background: #aaa;
+      }
+    </style>
 
-  <button onclick="hostToggle.classList.toggle('toggle')">Toggle</button>
+    <div id="transition">
+      <div>
+        <span>Should transition (No shadow root)</span>
+      </div>
+      <div id="transitionShadow">
+        <span>Should transition (in light DOM)</span>
+      </div>
+    </div>
 
-  <div id="hostToggle">
-    <span>Should toggle green background</span>
-  </div>
-  
-  <script>
-    hostToggle.attachShadow({mode:'open'}).innerHTML =
-      '<style>' +
-        ':host(.toggle) { background: green }' +
-      '</style>' +
-      '<slot></slot>';
-  </script>
+    <script>
+      transitionShadow.attachShadow({mode:'open'}).innerHTML =
+        '<slot></slot>';
+      const start = performance.now();
+      let transitioned = false;
+      transitionShadow.addEventListener('transitionend', () => {
+        const end = performance.now();
+        const duration = end - start;
+        const pass = duration > 1000 && duration < 3000;
+        transitionLightStatus.classList.add(pass ? 'pass' : 'fail');
+        transitioned = true;
+      });
+      setTimeout(() => {
+        if (!transitioned) {
+          transitionLightStatus.classList.add('fail');
+        }
+      }, 3000);
+      setTimeout(() => {
+        transition.classList.toggle('toggle');
+      });
+    </script>
+  </section>
 
 
+  <section>
+    <header>
+      <h2>:host(.toggle)</h2>
+      <a href="https://bugs.webkit.org/show_bug.cgi?id=158900">https://bugs.webkit.org/show_bug.cgi?id=158900</a>
+      <div id="hostToggleStatus" class="status"></div>
+    </header>
 
+    <!-- <button onclick="hostToggle.classList.toggle('toggle')">Toggle</button> -->
+
+    <div id="hostToggle">
+      <span>Should have a background color</span>
+    </div>
+
+    <script>
+      hostToggle.attachShadow({mode:'open'}).innerHTML =
+        '<style>' +
+          ':host(.toggle) { background-color: rgba(100, 150, 200, 0.5) }' +
+        '</style>' +
+        '<slot></slot>';
+      setTimeout(() => {
+        hostToggle.classList.toggle('toggle');
+        const style = window.getComputedStyle(hostToggle);
+        const backgroundColor = style.backgroundColor;
+        const pass = backgroundColor !== `rgba(0, 0, 0, 0)`;
+        hostToggleStatus.classList.add(pass ? 'pass' : 'fail');
+      });
+    </script>
+  </section>
+
+
+<!--
   <h2>:host > *</h2>
   <a href="https://bugs.webkit.org/show_bug.cgi?id=160754">WebKit Bug</a>
 
   <div id="hostDescendant">
     <span>Should have green background</span>
   </div>
-  
+
   <script>
     hostDescendant.attachShadow({mode:'open'}).innerHTML =
       '<style>' +
         ':host > * { background: green }' +
       '</style>' +
       '<div><slot></slot></div>';
-  </script>
+  </script> -->
 
 
+  <section>
+    <header>
+      <h2>:host::after</h2>
+      <p>This might be a spec bug. Where should ::after go? Chrome does a virtual last child in the shadow root.</p>
+      <div id="hostAfterStatus" class="status"></div>
+    </header>
+    <div id="hostAfter">
+      <span>( ( ( Should end with three closing brackets</span>
+    </div>
 
-  <h2>:host::after</h2>
+    <script>
+      hostAfter.attachShadow({mode:'open'}).innerHTML =
+        '<style>' +
+          ':host::after { content: ") ) )" }' +
+        '</style>' +
+        '<slot></slot>';
+      {
+        const style = window.getComputedStyle(hostAfter, ':after');
+        const afterContent = style.content;
+        const pass = afterContent === '") ) )"';
+        hostAfterStatus.classList.add(pass ? 'pass' : 'fail');
+      }
+    </script>
+  </section>
 
-  <div id="hostAfter">
-    <span>( ( ( Should end with three closing brackets</span>
-  </div>
-  
-  <script>
-    hostAfter.attachShadow({mode:'open'}).innerHTML =
-      '<style>' +
-        ':host::after { content: ") ) )" }' +
-      '</style>' +
-      '<slot></slot>';
-  </script>
+<section>
+  <header>
+    <h2>getRootNode()</h2>
+    <a href="https://bugs.webkit.org/show_bug.cgi?id=162457">https://bugs.webkit.org/show_bug.cgi?id=162457</a>
+    <div id="getRootNodeStatus" class="status"></div>
+  </header>
 
+    <div id="getRootNode"></div>
 
+    <script>{
+      getRootNode.attachShadow({mode:'open'}).innerHTML =
+        '<div></div>';
+      var div = getRootNode.shadowRoot.firstElementChild;
+      const pass = typeof div.getRootNode === 'function';
+      getRootNodeStatus.classList.add(pass ? 'pass' : 'fail');
+    }</script>
 
-  <h2>getRootNode()</h2>
-  <a href="https://bugs.webkit.org/show_bug.cgi?id=162457">WebKit Bug</a>
-
-  <div id="getRootNode"></div>
-  
-  <script>
-    getRootNode.attachShadow({mode:'open'}).innerHTML =
-      '<div></div>';
-    var div = getRootNode.shadowRoot.firstElementChild;
-    div.innerText = 'typeof div.getRootNode === ' + typeof div.getRootNode;
-  </script>
+</section>
 
 </body>
 </html>
