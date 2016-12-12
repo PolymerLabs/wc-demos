@@ -235,7 +235,7 @@
       {
         const style = window.getComputedStyle(hostAfter, ':after');
         const afterContent = style.content;
-        const pass = afterContent === '") ) )"';
+        const pass = afterContent.indexOf(') ) )') === 1;
         hostAfterStatus.classList.add(pass ? 'pass' : 'fail');
       }
     </script>
