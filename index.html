@@ -324,6 +324,29 @@
     }</script>
   </section>
 
+
+  <section>
+    <header>
+      <h2>button.click() should be composed</h2>
+      <p><a href="https://bugs.webkit.org/show_bug.cgi?id=170211">https://bugs.webkit.org/show_bug.cgi?id=170211</a></p>
+      <div id="clickComposedStatus" class="status"></div>
+    </header>
+
+    <div id="clickComposed"></div>
+
+    <script>{
+      clickComposed.attachShadow({mode:'open'});
+
+      const button = document.createElement('button');
+      clickComposed.shadowRoot.appendChild(button);
+      button.addEventListener('click', function(e) {
+        clickComposedStatus.classList.add(e.composed ? 'pass' : 'fail');
+      });
+      button.click();
+    }</script>
+  </section>
+
+
   <section>
     <header>
       <h2>attributeChangedCallback() with same value</h2>
