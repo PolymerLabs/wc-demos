@@ -320,7 +320,7 @@
         const path = e.composedPath();
         composedPathStatus.classList.add(path[path.length-1] === window ? 'pass' : 'fail');
       });
-      button.click();
+      button.dispatchEvent(new CustomEvent('click', { composed: true }));
     }</script>
   </section>
 
