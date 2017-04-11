@@ -346,34 +346,5 @@
     }</script>
   </section>
 
-
-  <section>
-    <header>
-      <h2>attributeChangedCallback() with same value</h2>
-      <div id="attributeChangedCallbackStatus" class="status"></div>
-    </header>
-
-    <div id="composedPath"></div>
-
-    <script>{
-      class ACCElement extends HTMLElement {
-        static get observedAttributes() { return ['test']; }
-        constructor() {
-          super();
-          this.changedCount = 0;
-        }
-        attributeChangedCallback(name, oldValue, newValue) {
-          this.changedCount++;
-        }
-      }
-      customElements.define('acc-element', ACCElement);
-      const el = document.createElement('acc-element');
-      el.setAttribute('test', 'a');
-      el.setAttribute('test', 'a');
-      const pass = el.changedCount == 1;
-      attributeChangedCallbackStatus.classList.add(pass ? 'pass' : 'fail');
-    }</script>
-  </section>
-
 </body>
 </html>
