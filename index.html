@@ -346,5 +346,31 @@
     }</script>
   </section>
 
+
+  <section>
+    <header>
+      <h2>:host(.toggle) div</h2>
+      <a href="https://bugs.webkit.org/show_bug.cgi?id=170762">https://bugs.webkit.org/show_bug.cgi?id=170762</a>
+      <div id="hostToggleDivStatus" class="status"></div>
+    </header>
+
+    <div id="hostToggleDiv"></div>
+
+    <script>
+      hostToggleDiv.attachShadow({mode:'open'}).innerHTML =
+        '<style>' +
+          ':host(.toggle) div { background-color: rgba(100, 150, 200, 0.5) }' +
+        '</style>' +
+        '<div>Should have a background color</div>';
+      setTimeout(() => {
+        hostToggleDiv.classList.toggle('toggle');
+        const style = window.getComputedStyle(hostToggleDiv.shadowRoot.querySelector('div'));
+        const backgroundColor = style.backgroundColor;
+        const pass = backgroundColor !== `rgba(0, 0, 0, 0)`;
+        hostToggleDivStatus.classList.add(pass ? 'pass' : 'fail');
+      });
+    </script>
+  </section>
+
 </body>
 </html>
